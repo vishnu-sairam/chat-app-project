@@ -13,7 +13,7 @@ const ChatWindow = () => {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // scrollToBottom defined before the effect that uses it
+  // scrollToBottom function
   const scrollToBottom = useCallback(() => {
     try {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -22,37 +22,30 @@ const ChatWindow = () => {
     }
   }, []);
 
-  // Load session when sessionId changes — loadSession is defined inside the effect
-  useEffect(() => {
+  // loadSession function using useCallback
+  const loadSession = useCallback(async () => {
     if (!sessionId) {
       setMessages([]);
       setLoading(false);
       return;
     }
 
-    let cancelled = false;
-
-    async function loadSession() {
-      try {
-        setLoading(true);
-        const session = await getSessionHistory(sessionId);
-        if (!cancelled) {
-          setMessages(session.messages || []);
-        }
-      } catch (error) {
-        console.error('Failed to load session:', error);
-        if (!cancelled) setMessages([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    try {
+      setLoading(true);
+      const session = await getSessionHistory(sessionId);
+      setMessages(session.messages || []);
+    } catch (error) {
+      console.error('Failed to load session:', error);
+      setMessages([]);
+    } finally {
+      setLoading(false);
     }
-
-    loadSession();
-
-    return () => {
-      cancelled = true;
-    };
   }, [sessionId]);
+
+  // Load session when sessionId changes
+  useEffect(() => {
+    loadSession();
+  }, [loadSession]);
 
   // Scroll when messages change
   useEffect(() => {
