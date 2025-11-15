@@ -240,6 +240,26 @@ All responses include structured tables with Indian company names and locations 
 - **State Management**: React Hooks (useState, useEffect)
 - **Routing**: React Router v6
 
+## Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
+
+### Quick Deploy
+
+**Backend (Render/Railway)**:
+1. Push code to GitHub
+2. Connect repository to Render/Railway
+3. Set root directory to `backend`
+4. Deploy
+
+**Frontend (Vercel)**:
+1. Connect GitHub repository to Vercel
+2. Set root directory to `frontend`
+3. Add environment variable: `REACT_APP_API_URL` = your backend URL
+4. Deploy
+
+For step-by-step instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
 ## Troubleshooting
 
 ### Port Already in Use Error
@@ -277,5 +297,14 @@ kill -9 $(lsof -ti:5000)
 2. Check if Tailwind CSS is properly configured
 3. Verify API base URL in `frontend/src/api/api.js`
 4. Check browser console for errors
+
+### CORS Issues in Production
+
+Update `backend/server.js` to allow your frontend domain:
+```javascript
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000'
+}));
+```
 
 
