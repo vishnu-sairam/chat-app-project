@@ -41,7 +41,7 @@ const ChatWindow = () => {
   }, []);
 
 
-  const handleSendMessage = async (question) => {
+  const handleSendMessage = useCallback(async (question) => {
     try {
       setSending(true);
       // Add user message immediately
@@ -72,7 +72,7 @@ const ChatWindow = () => {
     } finally {
       setSending(false);
     }
-  };
+  }, [sessionId]);
 
   if (loading) {
     return (
