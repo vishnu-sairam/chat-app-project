@@ -1,5 +1,5 @@
 // frontend/src/components/ChatWindow.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getSessionHistory, askQuestion } from '../api/api';
 import ChatInput from './ChatInput';
@@ -13,21 +13,7 @@ const ChatWindow = () => {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    if (sessionId) {
-      loadSession();
-    }
-  }, [sessionId]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const loadSession = async () => {
+  const loadSession = useCallback(async () => {
     try {
       setLoading(true);
       const session = await getSessionHistory(sessionId);
@@ -38,7 +24,22 @@ const ChatWindow = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (sessionId) {
+      loadSession();
+    }
+  }, [sessionId, loadSession]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
 
   const handleSendMessage = async (question) => {
     try {
