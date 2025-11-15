@@ -10,11 +10,30 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const SESSIONS_FILE = path.join(__dirname, 'sessions.json');
 
+// Allowed origins
+const allowedOrigins = [
+  'https://refchat-app.vercel.app',  // Production frontend
+  'http://localhost:3000',           // Local development
+  'http://localhost:5000'            // Backend URL for local testing
+];
+
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', cors());
 app.use(express.json());
 
 // In-memory sessions store
